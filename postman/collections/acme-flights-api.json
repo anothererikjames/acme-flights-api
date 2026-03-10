@@ -1,0 +1,288 @@
+{
+  "info": {
+    "name": "Acme Flights API",
+    "description": "Complete test suite for the Acme Flights API v3. Covers flight search, bookings, passengers, seats, and airports.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "{{baseUrl}}", "type": "string" },
+    { "key": "token", "value": "{{token}}", "type": "string" },
+    { "key": "flightId", "value": "", "type": "string" },
+    { "key": "bookingId", "value": "", "type": "string" },
+    { "key": "passengerId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response time < 500ms', () => pm.expect(pm.response.responseTime).to.be.below(500));",
+                  "pm.test('Status is healthy', () => pm.expect(pm.response.json().status).to.eql('healthy'));",
+                  "pm.test('Version is v3.x.x', () => pm.expect(pm.response.json().version).to.match(/^3\\.\\d+\\.\\d+$/));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Flights",
+      "item": [
+        {
+          "name": "GET /flights/search",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const tomorrow = new Date();",
+                  "tomorrow.setDate(tomorrow.getDate() + 30);",
+                  "pm.collectionVariables.set('departureDate', tomorrow.toISOString().split('T')[0]);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has outbound flights array', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('outbound');",
+                  "  pm.expect(json.outbound).to.be.an('array');",
+                  "});",
+                  "pm.test('Has searchId', () => pm.expect(pm.response.json()).to.have.property('searchId'));",
+                  "pm.test('Search results not expired', () => {",
+                  "  const expiry = new Date(pm.response.json().expiresAt);",
+                  "  pm.expect(expiry.getTime()).to.be.above(Date.now());",
+                  "});",
+                  "if (pm.response.json().outbound.length > 0) {",
+                  "  pm.collectionVariables.set('flightId', pm.response.json().outbound[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/flights/search?origin=SFO&destination=JFK&departureDate={{departureDate}}&passengers=1&cabinClass=economy",
+              "host": ["{{baseUrl}}"], "path": ["flights", "search"],
+              "query": [
+                { "key": "origin", "value": "SFO" },
+                { "key": "destination", "value": "JFK" },
+                { "key": "departureDate", "value": "{{departureDate}}" },
+                { "key": "passengers", "value": "1" },
+                { "key": "cabinClass", "value": "economy" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /flights/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Flight has required fields', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.all.keys('id','flightNumber','origin','destination','departureTime','arrivalTime','durationMinutes','aircraft','status','availableSeats','pricing');",
+                  "});",
+                  "pm.test('Valid IATA origin code', () => pm.expect(pm.response.json().origin).to.match(/^[A-Z]{3}$/));",
+                  "pm.test('Arrival is after departure', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(new Date(json.arrivalTime).getTime()).to.be.above(new Date(json.departureTime).getTime());",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/flights/{{flightId}}", "host": ["{{baseUrl}}"], "path": ["flights", "{{flightId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Passengers",
+      "item": [
+        {
+          "name": "POST /passengers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Passenger has id', () => pm.expect(pm.response.json()).to.have.property('id'));",
+                  "pm.test('Name matches', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.firstName).to.eql('Jane');",
+                  "  pm.expect(json.lastName).to.eql('Testuser');",
+                  "});",
+                  "pm.collectionVariables.set('passengerId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"firstName\": \"Jane\", \"lastName\": \"Testuser\", \"dateOfBirth\": \"1990-06-15\", \"passportNumber\": \"TEST123456\", \"nationality\": \"US\", \"email\": \"jane.test@acme.com\"}" },
+            "url": { "raw": "{{baseUrl}}/passengers", "host": ["{{baseUrl}}"], "path": ["passengers"] }
+          }
+        },
+        {
+          "name": "GET /passengers/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Passenger has required fields', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.all.keys('id','firstName','lastName','dateOfBirth','passportNumber','nationality','email','createdAt');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/passengers/{{passengerId}}", "host": ["{{baseUrl}}"], "path": ["passengers", "{{passengerId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "POST /bookings",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Booking has reference', () => pm.expect(pm.response.json()).to.have.property('bookingReference'));",
+                  "pm.test('Reference format is ACME-XXXXX', () => pm.expect(pm.response.json().bookingReference).to.match(/^ACME-[A-Z0-9]+$/));",
+                  "pm.test('Status is pending or confirmed', () => pm.expect(pm.response.json().status).to.be.oneOf(['pending','confirmed']));",
+                  "pm.collectionVariables.set('bookingId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"flightId\": \"{{flightId}}\", \"passengerIds\": [\"{{passengerId}}\"], \"cabinClass\": \"economy\"}" },
+            "url": { "raw": "{{baseUrl}}/bookings", "host": ["{{baseUrl}}"], "path": ["bookings"] }
+          }
+        },
+        {
+          "name": "GET /bookings/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Booking has required fields', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.all.keys('id','bookingReference','flightId','passengers','cabinClass','totalPrice','currency','status','createdAt','updatedAt');",
+                  "});",
+                  "pm.test('Currency is 3-letter code', () => pm.expect(pm.response.json().currency).to.match(/^[A-Z]{3}$/));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/bookings/{{bookingId}}", "host": ["{{baseUrl}}"], "path": ["bookings", "{{bookingId}}"] }
+          }
+        },
+        {
+          "name": "POST /bookings/:id/cancel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is cancelled', () => pm.expect(pm.response.json().status).to.eql('cancelled'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"reason\": \"Test cancellation\"}" },
+            "url": { "raw": "{{baseUrl}}/bookings/{{bookingId}}/cancel", "host": ["{{baseUrl}}"], "path": ["bookings", "{{bookingId}}", "cancel"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Airports",
+      "item": [
+        {
+          "name": "GET /airports/:iataCode",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('IATA code matches', () => pm.expect(pm.response.json().iataCode).to.eql('SFO'));",
+                  "pm.test('Has coordinates', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.coordinates).to.have.all.keys('lat','lon');",
+                  "  pm.expect(json.coordinates.lat).to.be.a('number');",
+                  "  pm.expect(json.coordinates.lon).to.be.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/airports/SFO", "host": ["{{baseUrl}}"], "path": ["airports", "SFO"] }
+          }
+        }
+      ]
+    }
+  ]
+}
