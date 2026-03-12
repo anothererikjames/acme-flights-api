@@ -1,0 +1,12 @@
+$kind: http-request
+url: http://{{baseUrl}}/bookings/:bookingId/seats
+method: POST
+headers:
+  Content-Type: application/json
+pathVariables:
+  bookingId: string
+body:
+  type: json
+  content: "{}"
+examples: ./.resources/Reserve seat.resources/examples
+order: 1000

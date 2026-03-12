@@ -1,0 +1,25 @@
+$kind: http-request
+name: GET /flights/:id
+url: "{{baseUrl}}/flights/{{flightId}}"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+scripts:
+  - type: afterResponse
+    code: >-
+      pm.test('Status is 200', () => pm.response.to.have.status(200));
+
+      pm.test('Flight has required fields', () => {
+        const json = pm.response.json();
+        pm.expect(json).to.have.all.keys('id','flightNumber','origin','destination','departureTime','arrivalTime','durationMinutes','aircraft','status','availableSeats','pricing');
+      });
+
+      pm.test('Valid IATA origin code', () =>
+      pm.expect(pm.response.json().origin).to.match(/^[A-Z]{3}$/));
+
+      pm.test('Arrival is after departure', () => {
+        const json = pm.response.json();
+        pm.expect(new Date(json.arrivalTime).getTime()).to.be.above(new Date(json.departureTime).getTime());
+      });
+    language: text/javascript
+order: 2000

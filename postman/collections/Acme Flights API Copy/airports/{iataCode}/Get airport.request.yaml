@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/airports/:iataCode"
+method: GET
+pathVariables:
+  iataCode: string
+examples: ./.resources/Get airport.resources/examples
+order: 1000

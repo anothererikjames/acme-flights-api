@@ -1,0 +1,12 @@
+$kind: http-request
+url: "{{baseUrl}}/passengers/:passengerId"
+method: PUT
+headers:
+  Content-Type: application/json
+pathVariables:
+  passengerId: string
+body:
+  type: json
+  content: "{}"
+examples: ./.resources/Update passenger.resources/examples
+order: 2000

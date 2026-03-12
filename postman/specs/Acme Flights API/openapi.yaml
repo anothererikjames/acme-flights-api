@@ -1,0 +1,209 @@
+openapi: 3.0.3
+info:
+  title: Acme Flights API
+  version: 3.1.0
+  description: Flight search, booking, and passenger management.
+  contact:
+    name: Travel Engineering
+    email: flights-api@acme.com
+servers:
+  - url: https://api.acme.com/flights/v3
+    description: Production
+  - url: https://api-staging.acme.com/flights/v3
+    description: Staging
+  - url: https://api-dev.acme.com/flights/v3
+    description: Development
+security:
+  - bearerAuth: []
+tags:
+  - name: Flights
+  - name: Bookings
+  - name: Passengers
+  - name: Seats
+  - name: Schedules
+  - name: Airports
+paths:
+  /health:
+    get:
+      tags: [Flights]
+      summary: Health check
+      operationId: healthCheck
+      security: []
+      responses:
+        '200': { description: Healthy }
+  /flights/search:
+    get:
+      tags: [Flights]
+      summary: Search flights
+      operationId: searchFlights
+      parameters:
+        - { name: origin, in: query, required: true, schema: { type: string } }
+        - { name: destination, in: query, required: true, schema: { type: string } }
+        - { name: departureDate, in: query, required: true, schema: { type: string, format: date } }
+        - { name: returnDate, in: query, schema: { type: string, format: date } }
+        - { name: passengers, in: query, schema: { type: integer, default: 1 } }
+        - { name: cabinClass, in: query, schema: { type: string, enum: [economy, premium_economy, business, first] } }
+      responses:
+        '200': { description: Available flights }
+  /flights/{flightId}:
+    get:
+      tags: [Flights]
+      summary: Get flight
+      operationId: getFlight
+      parameters:
+        - { name: flightId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Flight details }
+  /bookings:
+    get:
+      tags: [Bookings]
+      summary: List bookings
+      operationId: listBookings
+      parameters:
+        - { name: status, in: query, schema: { type: string, enum: [pending, confirmed, cancelled, completed] } }
+      responses:
+        '200': { description: Bookings }
+    post:
+      tags: [Bookings]
+      summary: Create booking
+      operationId: createBooking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created }
+  /bookings/{bookingId}:
+    get:
+      tags: [Bookings]
+      summary: Get booking
+      operationId: getBooking
+      parameters:
+        - { name: bookingId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Booking details }
+    patch:
+      tags: [Bookings]
+      summary: Update booking
+      operationId: updateBooking
+      parameters:
+        - { name: bookingId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: Updated }
+  /bookings/{bookingId}/cancel:
+    post:
+      tags: [Bookings]
+      summary: Cancel booking
+      operationId: cancelBooking
+      parameters:
+        - { name: bookingId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Cancelled }
+  /bookings/{bookingId}/boarding-pass:
+    get:
+      tags: [Bookings]
+      summary: Get boarding pass
+      operationId: getBoardingPass
+      parameters:
+        - { name: bookingId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Boarding pass }
+  /passengers:
+    get:
+      tags: [Passengers]
+      summary: List passengers
+      operationId: listPassengers
+      responses:
+        '200': { description: Passengers }
+    post:
+      tags: [Passengers]
+      summary: Create passenger
+      operationId: createPassenger
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created }
+  /passengers/{passengerId}:
+    get:
+      tags: [Passengers]
+      summary: Get passenger
+      operationId: getPassenger
+      parameters:
+        - { name: passengerId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Passenger }
+    put:
+      tags: [Passengers]
+      summary: Update passenger
+      operationId: updatePassenger
+      parameters:
+        - { name: passengerId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: Updated }
+  /flights/{flightId}/seats:
+    get:
+      tags: [Seats]
+      summary: Get seat map
+      operationId: getSeatMap
+      parameters:
+        - { name: flightId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Seat map }
+  /bookings/{bookingId}/seats:
+    post:
+      tags: [Seats]
+      summary: Reserve seat
+      operationId: reserveSeat
+      parameters:
+        - { name: bookingId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: Reserved }
+  /schedules:
+    get:
+      tags: [Schedules]
+      summary: List schedules
+      operationId: listSchedules
+      parameters:
+        - { name: origin, in: query, schema: { type: string } }
+        - { name: destination, in: query, schema: { type: string } }
+      responses:
+        '200': { description: Schedules }
+  /airports:
+    get:
+      tags: [Airports]
+      summary: List airports
+      operationId: listAirports
+      parameters:
+        - { name: search, in: query, schema: { type: string } }
+      responses:
+        '200': { description: Airports }
+  /airports/{iataCode}:
+    get:
+      tags: [Airports]
+      summary: Get airport
+      operationId: getAirport
+      parameters:
+        - { name: iataCode, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Airport details }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

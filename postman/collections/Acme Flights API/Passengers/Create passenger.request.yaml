@@ -1,0 +1,10 @@
+$kind: http-request
+url: http://{{baseUrl}}/passengers
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: "{}"
+examples: ./.resources/Create passenger.resources/examples
+order: 2000

@@ -1,0 +1,10 @@
+$kind: http-request
+url: http://{{baseUrl}}/passengers/:passengerId
+method: GET
+pathVariables:
+  passengerId: string
+body:
+  type: text
+  content: ""
+examples: ./.resources/Get passenger.resources/examples
+order: 1000

@@ -1,0 +1,10 @@
+$kind: http-request
+url: http://{{baseUrl}}/airports?search=string
+method: GET
+queryParams:
+  search: string
+body:
+  type: text
+  content: ""
+examples: ./.resources/List airports.resources/examples
+order: 1000

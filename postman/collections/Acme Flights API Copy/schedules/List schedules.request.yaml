@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{baseUrl}}/schedules?origin=string&destination=string"
+method: GET
+queryParams:
+  origin: string
+  destination: string
+examples: ./.resources/List schedules.resources/examples
+order: 1000

@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/flights/:flightId"
+method: GET
+pathVariables:
+  flightId: string
+examples: ./.resources/Get flight.resources/examples
+order: 2000

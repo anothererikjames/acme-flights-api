@@ -1,0 +1,46 @@
+$kind: http-request
+name: GET /flights/search
+url: "{{baseUrl}}/flights/search?origin=SFO&destination=JFK&departureDate={{dep\
+  artureDate}}&passengers=1&cabinClass=economy"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+queryParams:
+  origin: SFO
+  destination: JFK
+  departureDate: "{{departureDate}}"
+  passengers: "1"
+  cabinClass: economy
+scripts:
+  - type: beforeRequest
+    code: >-
+      const tomorrow = new Date();
+
+      tomorrow.setDate(tomorrow.getDate() + 30);
+
+      pm.collectionVariables.set('departureDate',
+      tomorrow.toISOString().split('T')[0]);
+    language: text/javascript
+  - type: afterResponse
+    code: >-
+      pm.test('Status is 200', () => pm.response.to.have.status(200));
+
+      pm.test('Has outbound flights array', () => {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('outbound');
+        pm.expect(json.outbound).to.be.an('array');
+      });
+
+      pm.test('Has searchId', () =>
+      pm.expect(pm.response.json()).to.have.property('searchId'));
+
+      pm.test('Search results not expired', () => {
+        const expiry = new Date(pm.response.json().expiresAt);
+        pm.expect(expiry.getTime()).to.be.above(Date.now());
+      });
+
+      if (pm.response.json().outbound.length > 0) {
+        pm.collectionVariables.set('flightId', pm.response.json().outbound[0].id);
+      }
+    language: text/javascript
+order: 1000

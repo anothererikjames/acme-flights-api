@@ -1,0 +1,21 @@
+$kind: http-request
+name: POST /bookings
+url: "{{baseUrl}}/bookings"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: '{"flightId": "{{flightId}}", "passengerIds": ["{{passengerId}}"],
+    "cabinClass": "economy"}'
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status is 201', () => pm.response.to.have.status(201));
+      pm.test('Booking has reference', () => pm.expect(pm.response.json()).to.have.property('bookingReference'));
+      pm.test('Reference format is ACME-XXXXX', () => pm.expect(pm.response.json().bookingReference).to.match(/^ACME-[A-Z0-9]+$/));
+      pm.test('Status is pending or confirmed', () => pm.expect(pm.response.json().status).to.be.oneOf(['pending','confirmed']));
+      pm.collectionVariables.set('bookingId', pm.response.json().id);
+    language: text/javascript
+order: 1000

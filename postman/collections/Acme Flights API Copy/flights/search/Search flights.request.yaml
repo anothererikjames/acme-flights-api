@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/flights/search?origin=string&destination=string&departureDate\
+  =1972-09-18&returnDate=1972-09-18&passengers=1&cabinClass=first"
+method: GET
+queryParams:
+  origin: string
+  destination: string
+  departureDate: 1972-09-18
+  returnDate: 1972-09-18
+  passengers: "1"
+  cabinClass: first
+examples: ./.resources/Search flights.resources/examples
+order: 1000

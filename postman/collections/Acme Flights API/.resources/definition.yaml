@@ -1,0 +1,15 @@
+$kind: collection
+description: |-
+  Flight search, booking, and passenger management.
+
+  Contact Support:
+   Name: Travel Engineering
+   Email: flights-api@acme.com
+variables:
+  baseUrl: https://api.acme.com/flights/v3
+auth:
+  - id: ""
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{bearerToken}}"

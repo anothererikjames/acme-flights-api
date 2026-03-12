@@ -1,0 +1,15 @@
+$kind: http-request
+url: http://{{baseUrl}}/flights/search?origin=string&destination=string&departureDate=2020-08-03&returnDate=2020-08-03&passengers=1&cabinClass=economy
+method: GET
+queryParams:
+  origin: string
+  destination: string
+  departureDate: 2020-08-03
+  returnDate: 2020-08-03
+  passengers: "1"
+  cabinClass: economy
+body:
+  type: text
+  content: ""
+examples: ./.resources/Search flights.resources/examples
+order: 1000

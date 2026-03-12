@@ -1,0 +1,10 @@
+$kind: http-request
+url: http://{{baseUrl}}/bookings/:bookingId/boarding-pass
+method: GET
+pathVariables:
+  bookingId: string
+body:
+  type: text
+  content: ""
+examples: ./.resources/Get boarding pass.resources/examples
+order: 1000

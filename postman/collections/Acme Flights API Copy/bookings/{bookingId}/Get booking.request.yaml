@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/bookings/:bookingId"
+method: GET
+pathVariables:
+  bookingId: string
+examples: ./.resources/Get booking.resources/examples
+order: 4000

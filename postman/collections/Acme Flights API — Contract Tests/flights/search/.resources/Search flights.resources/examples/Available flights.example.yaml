@@ -1,0 +1,32 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/flights/search?origin=<string>&destination=<string>&departure\
+    Date=<date>&returnDate=<date>&passengers=1&cabinClass=business"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  queryParams:
+    - key: origin
+      value: <string>
+      description: "(Required) "
+    - key: destination
+      value: <string>
+      description: "(Required) "
+    - key: departureDate
+      value: <date>
+      description: "(Required) "
+    - key: returnDate
+      value: <date>
+    - key: passengers
+      value: "1"
+    - key: cabinClass
+      value: business
+response:
+  statusCode: 200
+  statusText: OK
+  body:
+    type: text
+    content: ""
+order: 1000

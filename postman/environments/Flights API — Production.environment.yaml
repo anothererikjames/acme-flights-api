@@ -1,0 +1,12 @@
+name: Flights API — Production
+values:
+  - key: baseUrl
+    value: https://api.acme.com/flights/v3
+    enabled: true
+  - key: authToken
+    value: ""
+    enabled: true
+  - key: userId
+    value: usr_demo_001
+    enabled: true
+color: null

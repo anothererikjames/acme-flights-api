@@ -1,0 +1,20 @@
+$kind: http-request
+name: GET /bookings/:id
+url: "{{baseUrl}}/bookings/{{bookingId}}"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+scripts:
+  - type: afterResponse
+    code: >-
+      pm.test('Status is 200', () => pm.response.to.have.status(200));
+
+      pm.test('Booking has required fields', () => {
+        const json = pm.response.json();
+        pm.expect(json).to.have.all.keys('id','bookingReference','flightId','passengers','cabinClass','totalPrice','currency','status','createdAt','updatedAt');
+      });
+
+      pm.test('Currency is 3-letter code', () =>
+      pm.expect(pm.response.json().currency).to.match(/^[A-Z]{3}$/));
+    language: text/javascript
+order: 2000

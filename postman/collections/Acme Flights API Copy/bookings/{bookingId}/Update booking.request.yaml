@@ -1,0 +1,12 @@
+$kind: http-request
+url: "{{baseUrl}}/bookings/:bookingId"
+method: PATCH
+headers:
+  Content-Type: application/json
+pathVariables:
+  bookingId: string
+body:
+  type: json
+  content: "{}"
+examples: ./.resources/Update booking.resources/examples
+order: 5000

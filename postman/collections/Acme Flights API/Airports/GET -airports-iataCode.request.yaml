@@ -1,0 +1,22 @@
+$kind: http-request
+name: GET /airports/:iataCode
+url: "{{baseUrl}}/airports/SFO"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+scripts:
+  - type: afterResponse
+    code: >-
+      pm.test('Status is 200', () => pm.response.to.have.status(200));
+
+      pm.test('IATA code matches', () =>
+      pm.expect(pm.response.json().iataCode).to.eql('SFO'));
+
+      pm.test('Has coordinates', () => {
+        const json = pm.response.json();
+        pm.expect(json.coordinates).to.have.all.keys('lat','lon');
+        pm.expect(json.coordinates.lat).to.be.a('number');
+        pm.expect(json.coordinates.lon).to.be.a('number');
+      });
+    language: text/javascript
+order: 1000

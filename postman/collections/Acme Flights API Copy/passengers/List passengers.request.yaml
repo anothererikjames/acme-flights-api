@@ -1,0 +1,5 @@
+$kind: http-request
+url: "{{baseUrl}}/passengers"
+method: GET
+examples: ./.resources/List passengers.resources/examples
+order: 2000

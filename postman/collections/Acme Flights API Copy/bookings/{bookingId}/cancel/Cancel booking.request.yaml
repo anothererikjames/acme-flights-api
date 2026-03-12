@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/bookings/:bookingId/cancel"
+method: POST
+pathVariables:
+  bookingId: string
+examples: ./.resources/Cancel booking.resources/examples
+order: 1000

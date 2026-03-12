@@ -1,0 +1,10 @@
+$kind: http-request
+url: http://{{baseUrl}}/bookings?status=cancelled
+method: GET
+queryParams:
+  status: cancelled
+body:
+  type: text
+  content: ""
+examples: ./.resources/List bookings.resources/examples
+order: 1000
