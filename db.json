@@ -1,0 +1,26 @@
+{
+  "flights": [
+    {
+      "id": "flt_001",
+      "origin": "SFO",
+      "destination": "JFK",
+      "departure": "2026-03-20T08:00:00Z"
+    }
+  ],
+  "bookings": [
+    {
+      "id": "bkg_001",
+      "flightId": "flt_001",
+      "passenger": "John Doe",
+      "status": "confirmed"
+    }
+  ],
+  "routes": [
+    {
+      "id": "rte_001",
+      "origin": "SFO",
+      "destination": "JFK",
+      "distance": 4150
+    }
+  ]
+}
